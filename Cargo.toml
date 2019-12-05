@@ -14,3 +14,6 @@ genmesh = { version = "0.6.2", optional = true }
 
 [features]
 default = ["genmesh"]
+
+[dev-dependencies]
+rand = "0.7.0"
