@@ -91,35 +91,34 @@ fn quick_hull(plane: &Plane, points: &[Point], invert: bool) -> Vec<Plane> {
 }
 
 fn initial_triangle(points: &[Point]) -> Plane {
-    //FIXME: be less lazy and do this in a single pass
-    let x_max = *points
-        .iter()
-        .max_by_key(|p| NotNan::new(p.x).unwrap())
-        .unwrap();
-    let y_max = *points
-        .iter()
-        .max_by_key(|p| NotNan::new(p.y).unwrap())
-        .unwrap();
-    let z_max = *points
-        .iter()
-        .max_by_key(|p| NotNan::new(p.z).unwrap())
-        .unwrap();
-    let x_min = *points
-        .iter()
-        .min_by_key(|p| NotNan::new(p.x).unwrap())
-        .unwrap();
-    let y_min = *points
-        .iter()
-        .min_by_key(|p| NotNan::new(p.y).unwrap())
-        .unwrap();
-    let z_min = *points
-        .iter()
-        .min_by_key(|p| NotNan::new(p.z).unwrap())
-        .unwrap();
-    let extreams = [x_max, y_max, z_max, x_min, y_min, z_min];
+    let mut x_max = &points[0];
+    let mut x_min = &points[0];
+    let mut y_max = &points[0];
+    let mut y_min = &points[0];
+    let mut z_max = &points[0];
+    let mut z_min = &points[0];
+    for p in points.iter() {
+        if p.x > x_max.x {
+            x_max = p;
+        } else if p.x < x_min.x {
+            x_min = p;
+        }
+        if p.y > y_max.y {
+            y_max = p;
+        } else if p.y < x_min.y {
+            y_min = p;
+        }
+        if p.z > z_max.z {
+            z_max = p;
+        } else if p.z < z_min.z {
+            z_min = p;
+        }
+    }
+
+    let extreams = [*x_max, *y_max, *z_max, *x_min, *y_min, *z_min];
 
     let mut max_dist = 0.0;
-    let mut line = [x_max, x_max];
+    let mut line = [*x_max, *x_max];
     for (i, a) in extreams.iter().enumerate() {
         for b in &extreams[i + 1..] {
             let d = na::distance(a, b);
