@@ -42,6 +42,18 @@ impl ConvexHull {
         Ok(Self { triangles })
     }
 
+    pub fn vertices(&self) -> Vec<(&Point, &na::Vector3<f64>)> {
+        let mut vertices = Vec::with_capacity(self.triangles.len() * 3);
+        for triangle in &self.triangles {
+            vertices.extend(&[
+                (&triangle.a, &triangle.normal),
+                (&triangle.b, &triangle.normal),
+                (&triangle.c, &triangle.normal),
+            ]);
+        }
+        vertices
+    }
+
     #[cfg(feature = "genmesh")]
     pub fn mesh_generator(&self) -> crate::genmesh::ConvexHullMeshGenerator<'_> {
         crate::genmesh::ConvexHullMeshGenerator::new(self)
