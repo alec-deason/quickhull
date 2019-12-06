@@ -5,4 +5,10 @@ rust:
   - nightly
   - stable
 script:
-    - cargo test
+    - cargo test --features "$CARGO_FEATURES"
+jobs:
+    include:
+        - name: "rayon"
+        env: CARGO_FEATURES=rayon
+        - name: "genmesh"
+        env: CARGO_FEATURES=genmesh
