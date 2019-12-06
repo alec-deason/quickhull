@@ -1,6 +1,9 @@
 use nalgebra as na;
 use ordered_float::NotNan;
 
+#[cfg(feature = "rayon")]
+use rayon::prelude::*;
+
 #[cfg(feature = "genmesh")]
 mod genmesh;
 
@@ -92,11 +95,23 @@ fn quick_hull(plane: &Triangle, points: &[Point], invert: bool) -> Vec<Triangle>
         set_correct_normal(&mut plane_c, &possible_internal_points);
         let mut plane_d = Triangle::new(plane.c, plane.a, max_point);
         set_correct_normal(&mut plane_d, &possible_internal_points);
-        quick_hull(&plane_b, &live_points, false)
-            .into_iter()
-            .chain(quick_hull(&plane_c, &live_points, false))
-            .chain(quick_hull(&plane_d, &live_points, false))
-            .collect()
+
+        #[cfg(not(feature = "rayon"))]
+        {
+            [plane_b, plane_c, plane_d]
+                .iter()
+                .map(|plane| quick_hull(plane, &live_points, false))
+                .flatten()
+                .collect()
+        }
+        #[cfg(feature = "rayon")]
+        {
+            [plane_b, plane_c, plane_d]
+                .par_iter()
+                .map(|plane| quick_hull(plane, &live_points, false))
+                .flatten()
+                .collect()
+        }
     } else {
         vec![plane.clone()]
     }

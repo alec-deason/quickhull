@@ -1,10 +1,10 @@
 use nalgebra as na;
-use rand::Rng;
+use rand::{rngs::StdRng, Rng, SeedableRng as _};
 
 use quickhull::ConvexHull;
 
 fn main() {
-    let mut rng = rand::thread_rng();
+    let mut rng = StdRng::seed_from_u64(1234567890);
     let size = 1000.0;
     let points: Vec<_> = (0..5_000_000)
         .map(|_| {
@@ -16,6 +16,7 @@ fn main() {
         })
         .collect();
 
-    let hull = ConvexHull::from_points(&points).unwrap();
-    println!("Hull has {} triangles", hull.triangles.len());
+    for _ in 0..10 {
+        ConvexHull::from_points(&points).unwrap();
+    }
 }

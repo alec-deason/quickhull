@@ -5,6 +5,7 @@ An implementation of the [quickhull](https://en.wikipedia.org/wiki/Quickhull) al
 
 ## Cargo features
 Support for [genmesh](https://github.com/gfx-rs/genmesh) is included behind the `genmesh` feature.
+Support for parallelism is included behind the `rayon` feature.
 
 ## Stability
 This package is still in initial development and testing and may change without warning (and is probably pretty buggy).
