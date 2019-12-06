@@ -1,3 +1,6 @@
+# Quickhull
+[![Build Status](https://travis-ci.org/alec-deason/quickhull.svg?branch=master)](https://travis-ci.org/alec-deason/quickhull)
+
 An implementation of the [quickhull](https://en.wikipedia.org/wiki/Quickhull) algorithm in 3D.
 
 ## Cargo features
