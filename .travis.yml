@@ -5,5 +5,4 @@ rust:
   - nightly
   - stable
 script:
-    - cargo build
     - cargo test
