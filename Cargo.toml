@@ -8,6 +8,8 @@ edition = "2018"
 
 [dependencies]
 nalgebra = "0.18"
+alga = "0.9"
+num-traits = "0.2.10"
 ordered-float = "1.0"
 
 genmesh = { version = "0.6.2", optional = true }

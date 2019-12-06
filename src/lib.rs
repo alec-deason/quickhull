@@ -7,17 +7,16 @@ use rayon::prelude::*;
 #[cfg(feature = "genmesh")]
 mod genmesh;
 
-type Point = na::Point3<f64>;
 #[derive(Clone)]
-pub struct Triangle {
-    a: Point,
-    b: Point,
-    c: Point,
-    normal: na::Vector3<f64>,
+pub struct Triangle<T: na::Scalar> {
+    a: na::Point3<T>,
+    b: na::Point3<T>,
+    c: na::Point3<T>,
+    normal: na::Vector3<T>,
 }
 
-impl Triangle {
-    fn new(a: Point, b: Point, c: Point) -> Self {
+impl<T: na::RealField> Triangle<T> {
+    fn new(a: na::Point3<T>, b: na::Point3<T>, c: na::Point3<T>) -> Self {
         let point1 = a - b;
         let point2 = b - c;
         let normal = point1.cross(&point2).normalize();
@@ -26,18 +25,18 @@ impl Triangle {
     }
 }
 
-pub struct ConvexHull {
-    pub triangles: Vec<Triangle>,
+pub struct ConvexHull<T: na::Scalar> {
+    pub triangles: Vec<Triangle<T>>,
 }
 
-impl ConvexHull {
-    pub fn from_points(points: &[Point]) -> Result<Self, ()> {
+impl<T: na::RealField + num_traits::Float> ConvexHull<T> {
+    pub fn from_points(points: &[na::Point3<T>]) -> Result<Self, ()> {
         if points.len() < 4 {
             return Err(());
         };
         let plane = initial_triangle(points);
 
-        let triangles: Vec<Triangle> = quick_hull(&plane, points, false)
+        let triangles: Vec<Triangle<T>> = quick_hull(&plane, points, false)
             .into_iter()
             .chain(quick_hull(&plane, points, true))
             .collect();
@@ -45,7 +44,7 @@ impl ConvexHull {
         Ok(Self { triangles })
     }
 
-    pub fn vertices(&self) -> Vec<(&Point, &na::Vector3<f64>)> {
+    pub fn vertices(&self) -> Vec<(&na::Point3<T>, &na::Vector3<T>)> {
         let mut vertices = Vec::with_capacity(self.triangles.len() * 3);
         for triangle in &self.triangles {
             vertices.extend(&[
@@ -58,22 +57,23 @@ impl ConvexHull {
     }
 
     #[cfg(feature = "genmesh")]
-    pub fn mesh_generator(&self) -> crate::genmesh::ConvexHullMeshGenerator<'_> {
+    pub fn mesh_generator(&self) -> crate::genmesh::ConvexHullMeshGenerator<'_, T> {
         crate::genmesh::ConvexHullMeshGenerator::new(self)
     }
 }
 
-fn quick_hull(plane: &Triangle, points: &[Point], invert: bool) -> Vec<Triangle> {
-    let mut max_dist = 0.0;
+fn quick_hull<T: na::RealField + num_traits::Float + num_traits::FromPrimitive>(plane: &Triangle<T>, points: &[na::Point3<T>], invert: bool) -> Vec<Triangle<T>> {
+    let threshold = T::from_f64(10.0f64.powf(-10.0)).unwrap();
+    let mut max_dist = T::zero();
     let mut max_point = None;
     let live_points: Vec<_> = points
         .iter()
         .filter(|p| {
             let mut d = plane.normal.dot(&(*p - &plane.a));
             if invert {
-                d *= -1.0;
+                d = -d;
             }
-            if d > 10.0f64.powf(-10.0) {
+            if d > threshold {
                 if d > max_dist {
                     max_dist = d;
                     max_point = Some(*p);
@@ -117,7 +117,7 @@ fn quick_hull(plane: &Triangle, points: &[Point], invert: bool) -> Vec<Triangle>
     }
 }
 
-fn initial_triangle(points: &[Point]) -> Triangle {
+fn initial_triangle<T: na::RealField + num_traits::Float>(points: &[na::Point3<T>]) -> Triangle<T> {
     let mut x_max = &points[0];
     let mut x_min = &points[0];
     let mut y_max = &points[0];
@@ -144,7 +144,7 @@ fn initial_triangle(points: &[Point]) -> Triangle {
 
     let extreams = [x_max, y_max, z_max, x_min, y_min, z_min];
 
-    let mut max_dist = 0.0;
+    let mut max_dist = T::zero();
     let mut line = [x_max, x_max];
     for (i, a) in extreams.iter().enumerate() {
         for b in &extreams[i + 1..] {
@@ -163,23 +163,24 @@ fn initial_triangle(points: &[Point]) -> Triangle {
     Triangle::new(*line[0], *line[1], third_point)
 }
 
-fn set_correct_normal(plane: &mut Triangle, points: &[Point]) {
+fn set_correct_normal<T: na::RealField + num_traits::Float>(plane: &mut Triangle<T>, points: &[na::Point3<T>]) {
+    let threshold = T::from_f64(10.0f64.powf(-10.0)).unwrap();
     for p in points.iter() {
         let d = plane.normal.dot(&(p - plane.a));
-        if d > 10.0f64.powf(-10.0) {
-            plane.normal *= -1.0;
+        if d > threshold {
+            plane.normal = -plane.normal;
             return;
         }
     }
 }
 
-fn distance_to_line(line: &[&Point; 2], point: &Point) -> f64 {
+fn distance_to_line<T: na::RealField + num_traits::Zero>(line: &[&na::Point3<T>; 2], point: &na::Point3<T>) -> T {
     let vec1 = point - line[0];
     let vec2 = point - line[1];
     let vec4 = vec1.cross(&vec2);
 
-    if vec2.magnitude() <= 0.0 {
-        0.0
+    if vec2.magnitude() <= T::zero() {
+        T::zero()
     } else {
         vec4.magnitude() / vec2.magnitude()
     }
