@@ -1,3 +1,4 @@
+//!Blaa blaa blaa
 use nalgebra as na;
 use ordered_float::NotNan;
 
@@ -26,7 +27,7 @@ impl<T: na::RealField> Triangle<T> {
 }
 
 pub struct ConvexHull<T: na::Scalar> {
-    pub triangles: Vec<Triangle<T>>,
+    triangles: Vec<Triangle<T>>,
 }
 
 impl<T: na::RealField + num_traits::Float> ConvexHull<T> {
@@ -63,7 +64,7 @@ impl<T: na::RealField + num_traits::Float> ConvexHull<T> {
 }
 
 fn quick_hull<T: na::RealField + num_traits::Float + num_traits::FromPrimitive>(plane: &Triangle<T>, points: &[na::Point3<T>], invert: bool) -> Vec<Triangle<T>> {
-    let threshold = T::from_f64(10.0f64.powf(-10.0)).unwrap();
+    let threshold = T::from_f64(10.0f64.powf(-5.0)).unwrap();
     let mut max_dist = T::zero();
     let mut max_point = None;
     let live_points: Vec<_> = points

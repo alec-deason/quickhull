@@ -17,5 +17,5 @@ fn main() {
         .collect();
 
     let hull = ConvexHull::from_points(&points).unwrap();
-    println!("Hull has {} triangles", hull.triangles.len());
+    println!("Hull has {} triangles", hull.vertices().len());
 }
