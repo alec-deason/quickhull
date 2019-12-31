@@ -21,31 +21,23 @@ impl<'a, T: na::RealField> ConvexHullMeshGenerator<'a, T> {
     }
 }
 
-trait ToArray32: na::RealField {
+pub trait ToArray32: na::RealField {
     fn to_array_32(vec: &na::Matrix3x1<Self>) -> [f32; 3];
 }
 
 impl ToArray32 for f64 {
     fn to_array_32(vec: &na::Matrix3x1<Self>) -> [f32; 3] {
-        [
-            vec.x as f32,
-            vec.y as f32,
-            vec.z as f32,
-        ]
+        [vec.x as f32, vec.y as f32, vec.z as f32]
     }
 }
 
 impl ToArray32 for f32 {
     fn to_array_32(vec: &na::Matrix3x1<Self>) -> [f32; 3] {
-        [
-            vec.x,
-            vec.y,
-            vec.z,
-        ]
+        [vec.x, vec.y, vec.z]
     }
 }
 
-impl<T: na::RealField + ToArray32> Iterator for ConvexHullMeshGenerator<'_, T>  {
+impl<T: na::RealField + ToArray32> Iterator for ConvexHullMeshGenerator<'_, T> {
     type Item = Polygon<Vertex>;
 
     fn next(&mut self) -> Option<Self::Item> {

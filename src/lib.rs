@@ -63,14 +63,18 @@ impl<T: na::RealField + num_traits::Float> ConvexHull<T> {
     }
 }
 
-fn quick_hull<T: na::RealField + num_traits::Float + num_traits::FromPrimitive>(plane: &Triangle<T>, points: &[na::Point3<T>], invert: bool) -> Vec<Triangle<T>> {
+fn quick_hull<T: na::RealField + num_traits::Float + num_traits::FromPrimitive>(
+    plane: &Triangle<T>,
+    points: &[na::Point3<T>],
+    invert: bool,
+) -> Vec<Triangle<T>> {
     let threshold = T::from_f64(10.0f64.powf(-5.0)).unwrap();
     let mut max_dist = T::zero();
     let mut max_point = None;
     let live_points: Vec<_> = points
         .iter()
         .filter(|p| {
-            let mut d = plane.normal.dot(&(*p - &plane.a));
+            let mut d = plane.normal.dot(&(*p - plane.a));
             if invert {
                 d = -d;
             }
@@ -164,7 +168,10 @@ fn initial_triangle<T: na::RealField + num_traits::Float>(points: &[na::Point3<T
     Triangle::new(*line[0], *line[1], third_point)
 }
 
-fn set_correct_normal<T: na::RealField + num_traits::Float>(plane: &mut Triangle<T>, points: &[na::Point3<T>]) {
+fn set_correct_normal<T: na::RealField + num_traits::Float>(
+    plane: &mut Triangle<T>,
+    points: &[na::Point3<T>],
+) {
     let threshold = T::from_f64(10.0f64.powf(-10.0)).unwrap();
     for p in points.iter() {
         let d = plane.normal.dot(&(p - plane.a));
@@ -175,7 +182,10 @@ fn set_correct_normal<T: na::RealField + num_traits::Float>(plane: &mut Triangle
     }
 }
 
-fn distance_to_line<T: na::RealField + num_traits::Zero>(line: &[&na::Point3<T>; 2], point: &na::Point3<T>) -> T {
+fn distance_to_line<T: na::RealField + num_traits::Zero>(
+    line: &[&na::Point3<T>; 2],
+    point: &na::Point3<T>,
+) -> T {
     let vec1 = point - line[0];
     let vec2 = point - line[1];
     let vec4 = vec1.cross(&vec2);
