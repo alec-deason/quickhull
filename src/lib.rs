@@ -16,6 +16,13 @@ pub fn from_points(points: &[Point]) -> Result<Vec<Point>, ()> {
     };
     let mut next_idx = triangles.keys().max().unwrap() + 1;
 
+    let mut interior_points = Vec::with_capacity(triangles.len()*3);
+    for (t,_) in triangles.values() {
+        interior_points.push(t.a);
+        interior_points.push(t.b);
+        interior_points.push(t.c);
+    }
+
     loop {
         let mut to_replace = None;
         for (idx, (_, outside_set)) in triangles.iter() {
@@ -64,14 +71,7 @@ pub fn from_points(points: &[Point]) -> Result<Vec<Point>, ()> {
                     } else { panic!("wrong neighbor somehow?"); }
                 }
                 let mut triangle = Triangle::new(edge.0, edge.1, max_p, *neighbor, 0, 0);
-                let mut hull_points = Vec::with_capacity(triangles.len()*3);
-                //FIXME: I can certainly do this with an iterator and avoid the bounds checks
-                for (t,_) in triangles.values() {
-                    hull_points.push(t.a);
-                    hull_points.push(t.b);
-                    hull_points.push(t.c);
-                }
-                set_correct_normal(&mut triangle, &hull_points);
+                set_correct_normal(&mut triangle, &interior_points);
                 let local_outside_set = extract_outside_set(&mut outside_set, &triangle);
                 new_triangles.push((idx, (triangle, local_outside_set)));
             }
@@ -113,7 +113,6 @@ pub fn from_points(points: &[Point]) -> Result<Vec<Point>, ()> {
         result.push(t.b);
         result.push(t.c);
     }
-    eprintln!("SUCCESS");
     Ok(result)
 }
 

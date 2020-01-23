@@ -1,7 +1,7 @@
 use nalgebra as na;
 use rand::{rngs::StdRng, Rng, SeedableRng as _};
 
-use quickhull::ConvexHull;
+use quickhull::from_points;
 
 fn main() {
     let mut rng = StdRng::seed_from_u64(1234567890);
@@ -17,6 +17,6 @@ fn main() {
         .collect();
 
     for _ in 0..10 {
-        ConvexHull::from_points(&points).unwrap();
+        from_points(&points).unwrap();
     }
 }

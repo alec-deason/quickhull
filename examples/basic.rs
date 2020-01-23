@@ -1,7 +1,7 @@
 use nalgebra as na;
 use rand::Rng;
 
-use quickhull::ConvexHull;
+use quickhull::from_points;
 
 fn main() {
     let mut rng = rand::thread_rng();
@@ -16,6 +16,6 @@ fn main() {
         })
         .collect();
 
-    let hull = ConvexHull::from_points(&points).unwrap();
-    println!("Hull has {} triangles", hull.vertices().len());
+    let hull = from_points(&points).unwrap();
+    println!("Hull has {} triangles", hull.len());
 }
