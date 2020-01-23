@@ -11,6 +11,7 @@ nalgebra = "0.18"
 alga = "0.9"
 num-traits = "0.2.10"
 ordered-float = "1.0"
+indexmap = "1"
 
 genmesh = { version = "0.6.2", optional = true }
 rayon = { version = "1.2.1", optional = true }
