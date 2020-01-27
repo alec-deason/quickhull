@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use nalgebra as na;
 use ordered_float::NotNan;
 
-use quickhull::from_points;
+use quickhull::ConvexHull;
 
 macro_rules! test_point_clouds {
     ($($name:ident: ($points:expr, $expected:expr),)*) => {
@@ -11,7 +11,7 @@ macro_rules! test_point_clouds {
             #[test]
             fn $name() {
                 let points = $points;
-                let vertices = from_points(&points).unwrap();
+                let vertices = ConvexHull::new().from_points(&points).unwrap();
                 assert!(vertices.len() == 12);
 
                 let expected:HashSet<_> = $expected.iter().map(|p| na::Point3::new(
